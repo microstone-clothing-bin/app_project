@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import 'BottomIcon0.dart';
 import 'BottomIcon1.dart';
 import 'BottomIcon2.dart';
 import 'BottomIcon3.dart';
 
+Color mainColor = Color(0xFF6029B7); //메인 컬러 추가
 void main() {
   runApp(const MyApp());
 }
@@ -41,12 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: const Color.fromARGB(
-          255,
-          16,
-          28,
-          197,
-        ), //배경색은 나중에 피그마 색 정보 받아서 수정
+        color: mainColor,
         child: const Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -94,7 +89,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        selectedItemColor: Color.fromARGB(255, 31, 61, 231),
+        selectedItemColor: mainColor,
         unselectedItemColor: Colors.grey,
         onTap: (int index) {
           setState(() {

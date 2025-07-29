@@ -5,10 +5,6 @@ class BottomIcon2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(
-        child: Text('즐겨찾기 화면', style: TextStyle(fontSize: 24)),
-      ),
-    );
+    return Scaffold(body: Text("즐겨찾기"));
   }
 }

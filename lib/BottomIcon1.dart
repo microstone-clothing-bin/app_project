@@ -6,7 +6,15 @@ class BottomIcon1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Center(child: Text('나눔 화면', style: TextStyle(fontSize: 24))),
+      body: Column(
+        children: [
+          SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text("4,325개"), Spacer(), Text("거리순"), Text("최신순")],
+          ),
+        ],
+      ),
     );
   }
 }
