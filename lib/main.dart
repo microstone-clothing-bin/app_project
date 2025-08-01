@@ -1,13 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import 'BottomIcon0.dart';
 import 'BottomIcon1.dart';
 import 'BottomIcon2.dart';
 import 'BottomIcon3.dart';
 
-Color mainColor = Color(0xFF6029B7); //메인 컬러 추가
-void main() {
+Color mainColor = Color(0xFF6029B7);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // ← 꼭 필요!
+  await FlutterNaverMap().init(
+    clientId: 'ky5kxy4ney', // ← 네이버 클라우드 콘솔에서 받은 키
+    onAuthFailed: (ex) {
+      print("네이버 지도 인증 실패: $ex");
+    },
+  );
   runApp(const MyApp());
 }
 
@@ -62,8 +71,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-//--------------------스플레쉬 화면 --------------------
-
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen({super.key});
 
@@ -94,7 +101,6 @@ class _SuccessScreenState extends State<SuccessScreen> {
         onTap: (int index) {
           setState(() {
             _currentIndex = index;
-            print(index); //눌러
           });
         },
         items: const [
