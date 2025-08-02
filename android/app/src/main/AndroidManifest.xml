@@ -25,7 +25,7 @@
 
             <!-- 네이버 지도 API Client ID -->
             <meta-data
-                android:name="com.example.microstone_clothing_bin"
+                android:name="com.naver.maps.map.CLIENT_ID"
                 android:value="ky5kxy4ney" />
 
             <intent-filter>
