@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
-import 'BottomIcon0.dart';
+import 'Home/BottomIcon0.dart';
 import 'BottomIcon1.dart';
 import 'BottomIcon2.dart';
 import 'BottomIcon3.dart';
