@@ -2,8 +2,8 @@ class marker_info {
   final String id;
   final String name; // roadAddress 를 name 으로 매핑
   final String address; // landLotAddress 를 address 로 매핑
-  final double lat; // latitude -> lat
-  final double lng; // longitude -> lng
+  final double lat; 
+  final double lng;
 
   marker_info({
     required this.id,

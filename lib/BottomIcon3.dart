@@ -6,7 +6,9 @@ class BottomIcon3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Center(child: Text('홈 화면', style: TextStyle(fontSize: 24))),
+      body: const Center(
+        child: Text('홈 화면 TEST', style: TextStyle(fontSize: 24)),
+      ),
     );
   }
 }
