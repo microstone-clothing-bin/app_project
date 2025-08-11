@@ -11,7 +11,7 @@ class BottomIcon1 extends StatelessWidget {
           SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text("4,325개"), Spacer(), Text("거리순"), Text("최신순")],
+            children: [Text("git 테스트!!!!!!!!!!!!!!!!!!!!!!!")],
           ),
         ],
       ),
