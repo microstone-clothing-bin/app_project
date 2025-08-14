@@ -1,4 +1,4 @@
-import 'dart:async'; // StreamSubscription 사용을 위해 추가
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -52,14 +52,13 @@ class _BottomIcon0State extends State<BottomIcon0> {
         Geolocator.getPositionStream(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            distanceFilter: 5, // 5m 이상 이동 시만 콜백
+            distanceFilter: 5,
           ),
         ).listen((position) {
           final NLatLng newPos = NLatLng(position.latitude, position.longitude);
           setState(() {
             _currentPosition = newPos;
           });
-          // 지도 오버레이 갱신
           if (_mapController != null) {
             final overlay = _mapController!.getLocationOverlay();
             overlay.setPosition(newPos);
@@ -70,11 +69,11 @@ class _BottomIcon0State extends State<BottomIcon0> {
 
   @override
   void dispose() {
-    _positionStreamSub?.cancel(); // 구독 해제
+    _positionStreamSub?.cancel();
     super.dispose();
   }
 
-  // 현재 위치 권한 및 데이터 로드
+  // 현재 위치 찾고 데이터 로딩
   Future<void> _initLocationAndData() async {
     try {
       final pos = await _determinePosition();
@@ -84,6 +83,11 @@ class _BottomIcon0State extends State<BottomIcon0> {
     }
     await _loadClothingBins();
     _updateNearbyMarkers();
+
+    // 위치 받아온 후, 맵 있으면 자동 이동
+    if (_mapController != null && _currentPosition != null) {
+      _moveToMyLocation();
+    }
   }
 
   Future<Position> _determinePosition() async {
@@ -210,7 +214,6 @@ class _BottomIcon0State extends State<BottomIcon0> {
 
   @override
   Widget build(BuildContext context) {
-    final center = _currentPosition ?? NLatLng(37.5666, 126.979);
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -219,7 +222,10 @@ class _BottomIcon0State extends State<BottomIcon0> {
           // 지도
           NaverMap(
             options: NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(target: center, zoom: 14),
+              initialCameraPosition: NCameraPosition(
+                target: _currentPosition ?? NLatLng(37.5666, 126.979),
+                zoom: 14,
+              ),
               locationButtonEnable: false,
             ),
             clusterOptions: NaverMapClusteringOptions(
@@ -230,20 +236,19 @@ class _BottomIcon0State extends State<BottomIcon0> {
             onMapReady: (controller) async {
               _mapController = controller;
               await _addMarkers();
+
               if (_currentPosition != null) {
                 final overlay = _mapController!.getLocationOverlay();
                 overlay.setPosition(_currentPosition!);
                 overlay.setIsVisible(true);
-                _mapController!.updateCamera(
-                  NCameraUpdate.fromCameraPosition(
-                    NCameraPosition(target: _currentPosition!, zoom: 14),
-                  ),
-                );
+
+                // 🔹 시작 시 자동으로 현재 위치 이동
+                _moveToMyLocation();
               }
             },
           ),
 
-          // 내 위치 버튼 - 바텀시트 위에서 같이 움직이게
+          // 내 위치 버튼
           if (showLocationButton)
             Positioned(
               right: 18,
@@ -282,7 +287,7 @@ class _BottomIcon0State extends State<BottomIcon0> {
             ),
           ),
 
-          // 바텀시트 + NotificationListener로 extent 추적
+          // 바텀시트
           NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
               setState(() {
@@ -387,7 +392,6 @@ class _BottomIcon0State extends State<BottomIcon0> {
                             ),
                           );
                         }),
-
                       Divider(height: 28),
 
                       // 검색 결과
