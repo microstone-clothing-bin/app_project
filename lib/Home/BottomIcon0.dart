@@ -7,6 +7,7 @@ import 'MarkerDetailPage.dart';
 import 'package:http/http.dart' as http;
 import 'marker_info.dart';
 import 'package:geolocator/geolocator.dart';
+import 'clothing_bin_bottom_sheet.dart'; // ✅ 새 파일 import
 
 // ==== 서버에서 마커 데이터 불러오기 ====
 Future<List<marker_info>> fetchClothingBins() async {
@@ -40,14 +41,13 @@ class _BottomIcon0State extends State<BottomIcon0> {
   bool showLocationButton = true;
   NLatLng? _currentPosition;
   final double minSheetSize = 0.12;
-  double _sheetExtent = 0.25; // NotificationListener로 추적한 바텀시트 비율
+  final double _sheetExtent = 0.25;
 
   @override
   void initState() {
     super.initState();
     _initLocationAndData();
 
-    // 위치 변경 스트림 시작
     _positionStreamSub =
         Geolocator.getPositionStream(
           locationSettings: const LocationSettings(
@@ -73,7 +73,6 @@ class _BottomIcon0State extends State<BottomIcon0> {
     super.dispose();
   }
 
-  // 현재 위치 찾고 데이터 로딩
   Future<void> _initLocationAndData() async {
     try {
       final pos = await _determinePosition();
@@ -83,8 +82,6 @@ class _BottomIcon0State extends State<BottomIcon0> {
     }
     await _loadClothingBins();
     _updateNearbyMarkers();
-
-    // 위치 받아온 후, 맵 있으면 자동 이동
     if (_mapController != null && _currentPosition != null) {
       _moveToMyLocation();
     }
@@ -236,13 +233,10 @@ class _BottomIcon0State extends State<BottomIcon0> {
             onMapReady: (controller) async {
               _mapController = controller;
               await _addMarkers();
-
               if (_currentPosition != null) {
                 final overlay = _mapController!.getLocationOverlay();
                 overlay.setPosition(_currentPosition!);
                 overlay.setIsVisible(true);
-
-                // 🔹 시작 시 자동으로 현재 위치 이동
                 _moveToMyLocation();
               }
             },
@@ -256,9 +250,9 @@ class _BottomIcon0State extends State<BottomIcon0> {
               child: FloatingActionButton(
                 onPressed: _moveToMyLocation,
                 backgroundColor: Colors.white,
-                child: Icon(
+                child: const Icon(
                   Icons.my_location,
-                  color: const Color.fromARGB(255, 34, 80, 207),
+                  color: Color.fromARGB(255, 34, 80, 207),
                 ),
               ),
             ),
@@ -275,7 +269,7 @@ class _BottomIcon0State extends State<BottomIcon0> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: '장소 또는 주소 검색',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -287,175 +281,15 @@ class _BottomIcon0State extends State<BottomIcon0> {
             ),
           ),
 
-          // 바텀시트
-          NotificationListener<DraggableScrollableNotification>(
-            onNotification: (notification) {
-              setState(() {
-                _sheetExtent = notification.extent;
-              });
-              return true;
-            },
-            child: DraggableScrollableSheet(
-              initialChildSize: 0.25,
-              minChildSize: minSheetSize,
-              maxChildSize: 0.85,
-              builder: (context, scrollController) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black26, blurRadius: 8),
-                    ],
-                  ),
-                  child: ListView(
-                    controller: scrollController,
-                    padding: EdgeInsets.zero,
-                    children: [
-                      // 현재 위치
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.my_location, color: Colors.deepPurple),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _currentPosition != null
-                                    ? "현재 위치: ${_currentPosition!.latitude.toStringAsFixed(5)}, ${_currentPosition!.longitude.toStringAsFixed(5)}"
-                                    : "위치 정보 없음",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Divider(),
-
-                      // 주변 의류수거함
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 4.0,
-                        ),
-                        child: Text(
-                          "주변 의류수거함 (500m 이내)",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      if (nearbyMarkers.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "주변에 아무것도 없습니다.",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        )
-                      else
-                        ...nearbyMarkers.map((bin) {
-                          final dist = _calculateDistance(
-                            _currentPosition!.latitude,
-                            _currentPosition!.longitude,
-                            bin.lat,
-                            bin.lng,
-                          ).toStringAsFixed(0);
-                          return Card(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.checkroom,
-                                color: Colors.deepPurple,
-                              ),
-                              title: Text(bin.caption),
-                              subtitle: Text('약 ${dist}m'),
-                              onTap: () {
-                                _mapController?.updateCamera(
-                                  NCameraUpdate.fromCameraPosition(
-                                    NCameraPosition(
-                                      target: NLatLng(bin.lat, bin.lng),
-                                      zoom: 16,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        }),
-                      Divider(height: 28),
-
-                      // 검색 결과
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 4.0,
-                        ),
-                        child: Text(
-                          "검색 결과",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      if (searchResults.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "검색된 결과가 없습니다.",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        )
-                      else
-                        ...searchResults.map((bin) {
-                          final dist = _currentPosition != null
-                              ? _calculateDistance(
-                                  _currentPosition!.latitude,
-                                  _currentPosition!.longitude,
-                                  bin.lat,
-                                  bin.lng,
-                                ).toStringAsFixed(0)
-                              : "-";
-                          return Card(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.checkroom,
-                                color: Colors.deepPurple.shade200,
-                              ),
-                              title: Text(bin.caption),
-                              subtitle: Text('약 ${dist}m'),
-                              onTap: () {
-                                _mapController?.updateCamera(
-                                  NCameraUpdate.fromCameraPosition(
-                                    NCameraPosition(
-                                      target: NLatLng(bin.lat, bin.lng),
-                                      zoom: 16,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        }),
-                    ],
-                  ),
-                );
-              },
-            ),
+          // ✅ 바텀시트 분리
+          ClothingBinBottomSheet(
+            minSheetSize: minSheetSize,
+            sheetExtent: _sheetExtent,
+            nearbyMarkers: nearbyMarkers,
+            searchResults: searchResults,
+            currentPosition: _currentPosition,
+            mapController: _mapController,
+            calculateDistance: _calculateDistance,
           ),
         ],
       ),
