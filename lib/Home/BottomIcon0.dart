@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'MarkerDetailPage.dart';
-import 'package:http/http.dart' as http;
-import 'marker_info.dart';
 import 'package:geolocator/geolocator.dart';
-import 'clothing_bin_bottom_sheet.dart'; // ✅ 새 파일 import
+import 'package:http/http.dart' as http;
 
-// ==== 서버에서 마커 데이터 불러오기 ====
+import 'marker_info.dart';
+import 'MarkerDetailPage.dart';
+
+import "clothing_bin_bottom_sheet.dart";
+
+// 서버에서 마커 데이터 불러오기
 Future<List<marker_info>> fetchClothingBins() async {
   final response = await http.get(
     Uri.parse('https://marker-url.onrender.com/api/clothing-bins'),
@@ -24,6 +27,7 @@ Future<List<marker_info>> fetchClothingBins() async {
 
 class BottomIcon0 extends StatefulWidget {
   const BottomIcon0({super.key});
+
   @override
   State<BottomIcon0> createState() => _BottomIcon0State();
 }
@@ -281,7 +285,6 @@ class _BottomIcon0State extends State<BottomIcon0> {
             ),
           ),
 
-          // ✅ 바텀시트 분리
           ClothingBinBottomSheet(
             minSheetSize: minSheetSize,
             sheetExtent: _sheetExtent,
